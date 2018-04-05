@@ -26,7 +26,7 @@ options = {
 }
 
 pp response = ncs4r.describe_security_groups(options)
-p ncs4r.row_xml
+p ncs4r.raw_xml
 
 response.securityGroupInfo.item.each do |security_group|
   p security_group.ownerId
