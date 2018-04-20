@@ -26,6 +26,7 @@ module NIFTY
                                                    /SubnetId/, 
                                                    /InstanceInitiatedShutdownBehavior/)
       WINDOWS_IMAGE_ID              = ['12', '16']
+      NIFTY_REBOOT_TYPE             = ['force', 'true', 'false']
 
       # API「DescribeInstanceAttribute」を実行し、指定したサーバーの詳細情報を取得します。1回のリクエストで、指定したサーバーのどれか1つの詳細情報を取得できます。
       # サーバーを指定するためには、サーバー名が必要です。削除済みのサーバーを指定した、管理外のサーバーを指定したなど、
@@ -451,6 +452,35 @@ module NIFTY
 
         return response_generator(params)
       end
+
+      # API「NiftyUpdateInstanceNetworkInterfaces」を実行し、指定したサーバーのネットワーク設定を変更します。
+      #
+      #  @option options [String] :instance_id                サーバー名
+      #  @option options [Array<Hash>] :network_interface     ネットワーク・インタフェース
+      #  @option options [String] :nifty_reboot               再起動オプション
+      #   許可値: force | true | false
+      #  @return [Hash] レスポンスXML解析結果
+      #
+      #  @example
+      #   nifty_update_instance_netework_interfaces(:instance_id => 'server01', :network_interface => [{:network_id => "net-COMMON_GLOBAL"}, {:network_name => "pvlan01", :ip_address => "static"}])
+      #
+      def nifty_update_instance_netework_interfaces( options={} )
+        raise ArgumentError, "No :instance_id provided." if blank?(options[:instance_id])
+        [options[:network_interface]].flatten.each do |opt|
+          raise ArgumentError, "expected each element of arr_of_hashes to be a Hash" unless opt.is_a?(Hash)
+          raise ArgumentError, ":network_id or :network_name must be provided." if blank?(opt[:network_id]) && blank?(opt[:network_name])
+        end unless blank?(options[:ip_permissions])
+        raise ArgumentError, "Invalid :nifty_reboot provided." unless blank?(options[:nifty_reboot]) || NIFTY_REBOOT_TYPE.include?(options[:nifty_reboot].to_s)
+
+        params = {
+          'Action' => 'NiftyUpdateInstanceNetworkInterfaces',
+        }
+        params.merge!(opts_to_prms(options, [:instance_id, :nifty_reboot]))
+        params.merge!(pathhashlist('NetworkInterface', options[:network_interface], {:network_id => 'NetworkId', :network_name => 'NetworkName', :ip_address => 'IpAddress'}))
+
+        return response_generator(params)
+      end
+
     end   # end of Base class
   end     # end of Cloud module
 end       # end of NIFTY module
