@@ -21,9 +21,9 @@ SECRET_KEY = ENV["NIFTY_CLOUD_SECRET_KEY"] || "<Your Secret Access Key>"
 ncs4r = NIFTY::Cloud::Base.new(:access_key => ACCESS_KEY, :secret_key => SECRET_KEY)
 
 options = {
-  #:group_name => ["groupName"],
-  #:filter     => [{:name  => "group-name",
-  #                 :value => "groupName"}]
+  #:private_lan_name => ["pvlan01"],
+  #:filter     => [{:name  => "private-lan-name",
+  #                 :value => "pv*"}]
 }
 
 pp response = ncs4r.nifty_describe_private_lans(options)
